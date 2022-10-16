@@ -6,14 +6,14 @@
 
 	.data
 student:
-	.asciiz "Student" 	# Place your name in the quotations in place of Student
+	.asciiz "Minh Bui, Harshita Gangaswamy, Yuki Keung" 	# Place your name in the quotations in place of Student
 	.globl	student
 nl:	.asciiz "\n"
 	.globl nl
 
 
-op1:	.word 7				# divisor for testing
-op2:	.word 19			# dividend for testing
+op1:	.word 4				# divisor for testing
+op2:	.word 20			# dividend for testing
 
 
 	.text
@@ -52,22 +52,39 @@ divide:
 ##############################################################################
 # Your code goes here.
 # Should have the same functionality as running
-#	divu	$a1, $a0 dividend, divisor
-#	mflo	$a2 quotient
-#	mfhi	$a3 remainder
+#	divu	$a1, $a0
+#	mflo	$a2
+#	mfhi	$a3
+
+# $a0 = divisor, $a1 = dividend, $a2 = quotient, $a3 = remainder
+	addi $s0, $a0, 0 	# $s0 = divisor
+	addi $s1, $0, 0 	# $s1 = 0 for loop
+	addi $s2, $0, 9 	# $s2 = 9 for loop
+	addi $a2, $0, 0		# $a2 = quotient
+	addi $a3, $a1, 0	# $a3 = remainder 
+	sll $s0, $s0, 8		# shift divisor left 8 bits
+	
+for:
+	beq $s1, $s2, done 	# if i == 9, branch to done
+	sub $a3, $a3, $s0 	# remainder = remainder - divisor
+	slt $s4, $a3, $0	# remainder >= 0, branch to else
+	beq $s4, $0, else
+	add $a3, $a3, $s0	# remainder < 0, remainder = remainder + divisor
+	sll $a2, $a2, 1		# shift quotient left by 1, set rightmost bit of quotient to 0
+	j shift	
+
+else:
+	sll $a2, $a2, 1		# remainder >= 0, shift quotient left by 1 bit
+	ori $a2, $a2, 1		# set rightmost bit of quotient to 1	
+
+shift: 
+	srl $s0, $s0, 1		# shift divisor right by 1 bit
+	addi $s1, $s1, 1	# increment i
+	j for
+
+done:
 ##############################################################################
-addi $a3, $0, 0		#initialize $a3 - the remainder 
-addi $a2, $0, 0		#initialize $a2 - the quotient 
-or $t1, $a1, $0		#copy a1 to t1
-or $t2, $a0, $0		#copy a0 to t2
-div_start:
-	slt $t4, $t1, $t2	#checking if dividend is smaller than divisor
-	bne $t4, $0, done	#if t1 is bigger than t2 then go to done
-	addi $a2, $a2, 1	#a2 = a2 + 1
-	sub $t1, $t1, $t2	#t1 = t1 - t2
-	j div_start
-done: 
-	add $a3, $0, $t1
+
 
 ##############################################################################
 # Do not edit below this line

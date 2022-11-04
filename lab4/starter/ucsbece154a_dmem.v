@@ -19,5 +19,5 @@ module ucsbece154a_dmem (
   // a_i[31:2] because the input is byte addressed and the data memory is word
   // addresed
   assign rd_o = RAM[a_i[7:2]];
-  always_ff @(posedge clk) if (we_i) RAM[a_i[7:2]] <= wd_i;
+  always @(posedge clk) if (we_i) RAM[a_i[7:2]] <= wd_i;
 endmodule

@@ -43,18 +43,18 @@ module ucsbece154a_controller (
     case (op_i)
       instr_Rtype_op: begin
         RegWrite_o = 1'b1;
-        RegDst_o = 1'b1;
-        ALUSrc_o = 1'b0;
+        RegDst_o = RegDst_Rtype;
+        ALUSrc_o = ALUSrc_reg;
         Branch_o = 1'b0;
         MemWrite_o = 1'b0;
         MemToReg_o = 1'b0;
         Jump_o = 1'b0;
         case (funct_i)
-          instr_add_funct: ALUControl_o = 3'b010;
-          instr_sub_funct: ALUControl_o = 3'b110;
-          instr_and_funct: ALUControl_o = 3'b000;
-          instr_or_funct: ALUControl_o = 3'b001;
-          instr_slt_funct: ALUControl_o = 3'b111;
+          instr_add_funct: ALUControl_o = ALUOp_add;
+          instr_sub_funct: ALUControl_o = ALUOp_sub;
+          instr_and_funct: ALUControl_o = ALUOp_and;
+          instr_or_funct: ALUControl_o = ALUOp_or;
+          instr_slt_funct: ALUControl_o = ALUOp_slt;
           default:
 `ifdef SIM
           $warning("Unsupported funct given: %h", funct_i);
@@ -71,64 +71,64 @@ module ucsbece154a_controller (
       end
       instr_beq_op: begin
         RegWrite_o = 1'b0;
-        ALUSrc_o = 1'b0;
+        ALUSrc_o = ALUSrc_reg;
         Branch_o = 1'b1;
         MemWrite_o = 1'b0;
-        ALUControl_o = 3'b110;
+        ALUControl_o = ALUOp_sub;
         Jump_o = 1'b0;
         BranchZero_o = 1'b0;
       end
       instr_bne_op: begin
         RegWrite_o = 1'b0;
-        ALUSrc_o = 1'b0;
+        ALUSrc_o = ALUSrc_reg;
         Branch_o = 1'b1;
         MemWrite_o = 1'b0;
-        ALUControl_o = 3'b110;
+        ALUControl_o = ALUOp_sub;
         Jump_o = 1'b0;
         BranchZero_o = 1'b1;  // branch zero is 1 for bne
       end
       instr_addi_op: begin
         RegWrite_o = 1'b1;
-        RegDst_o = 1'b0;
-        ALUSrc_o = 1'b1;
+        RegDst_o = RegDst_Itype;
+        ALUSrc_o = ALUSrc_imm;
         Branch_o = 1'b0;
         MemWrite_o = 1'b0;
         MemToReg_o = 1'b0;
-        ALUControl_o = 3'b010;
+        ALUControl_o = ALUOp_add;
         Jump_o = 1'b0;
         ZeroExtImm_o = 1'b0;  // addi uses sign extended imm value
         BranchZero_o = 1'b0;
       end
       instr_ori_op: begin
         RegWrite_o = 1'b1;
-        RegDst_o = 1'b0;
-        ALUSrc_o = 1'b1;
+        RegDst_o = RegDst_Itype;
+        ALUSrc_o = ALUSrc_imm;
         Branch_o = 1'b0;
         MemWrite_o = 1'b0;
         MemToReg_o = 1'b0;
-        ALUControl_o = 3'b001;
+        ALUControl_o = ALUOp_or;
         Jump_o = 1'b0;
         ZeroExtImm_o = 1'b1;  // ori uses zero extended imm value
         BranchZero_o = 1'b0;
       end
       instr_lw_op: begin
         RegWrite_o = 1'b1;
-        RegDst_o = 1'b0;
-        ALUSrc_o = 1'b1;
+        RegDst_o = RegDst_Itype;
+        ALUSrc_o = ALUSrc_imm;
         Branch_o = 1'b0;
         MemWrite_o = 1'b0;
         MemToReg_o = 1'b1;
-        ALUControl_o = 3'b010;
+        ALUControl_o = ALUOp_add;
         Jump_o = 1'b0;
         ZeroExtImm_o = 1'b0;  // lw uses sign extended imm value
         BranchZero_o = 1'b0;
       end
       instr_sw_op: begin
         RegWrite_o = 1'b0;
-        ALUSrc_o = 1'b1;
+        ALUSrc_o = ALUSrc_imm;
         Branch_o = 1'b0;
         MemWrite_o = 1'b1;
-        ALUControl_o = 3'b010;
+        ALUControl_o = ALUOp_add;
         Jump_o = 1'b0;
         ZeroExtImm_o = 1'b0;  // sw uses sign extended imm value
         BranchZero_o = 1'b0;
